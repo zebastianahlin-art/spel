@@ -35,18 +35,28 @@ Den här fasen innehåller:
 - enkel poängsättning
 - automatisk växling till nästa spelare
 
-## Viktigt i fas 3
-För att hålla spelet stabilt använder fas 3 bara:
+## Fas 4
+Den här fasen innehåller:
 
-- godkända frågor i databasen
-- frågetypen `multiple_choice`
+- tärningskast efter rätt svar
+- positioner på spelplan
+- enkel bana med 30 steg
+- rörelse framåt på rätt svar
+- poängtavla med positioner
+- förberedelse för senare Sverigekarta
+
+## Viktigt i fas 4
+Det här är fortfarande en stabil MVP-version:
+- ingen animerad Sverigekarta ännu
+- inga specialrutor ännu
+- ingen final ännu
+- ingen sabotagefunktion ännu
 
 ## Kommande fas
 Nästa steg är:
 
-- resultatvisning snyggare
-- tärning
-- förflyttning på spelplan
-- Sverigekarta
-- positioner
 - specialrutor
+- enkel kartvy över Sverige
+- bättre answer reveal
+- slutvillkor / final
+- grund för Jackbox-runda
