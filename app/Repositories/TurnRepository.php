@@ -126,7 +126,10 @@ final class TurnRepository
         int $turnId,
         string $answerSubmitted,
         bool $isCorrect,
-        int $scoreAwarded
+        int $scoreAwarded,
+        ?int $diceRoll,
+        int $positionAfter,
+        string $state = 'answered'
     ): void {
         $sql = '
             UPDATE turns
@@ -134,18 +137,28 @@ final class TurnRepository
                 state = :state,
                 answer_submitted = :answer_submitted,
                 is_correct = :is_correct,
+                dice_roll = :dice_roll,
+                position_after = :position_after,
                 score_awarded = :score_awarded,
                 updated_at = NOW()
             WHERE id = :id
         ';
 
         $stmt = $this->database->pdo()->prepare($sql);
-        $stmt->execute([
-            ':state' => 'answered',
-            ':answer_submitted' => $answerSubmitted,
-            ':is_correct' => $isCorrect ? 1 : 0,
-            ':score_awarded' => $scoreAwarded,
-            ':id' => $turnId,
-        ]);
+        $stmt->bindValue(':state', $state);
+        $stmt->bindValue(':answer_submitted', $answerSubmitted);
+        $stmt->bindValue(':is_correct', $isCorrect ? 1 : 0, PDO::PARAM_INT);
+
+        if ($diceRoll === null) {
+            $stmt->bindValue(':dice_roll', null, PDO::PARAM_NULL);
+        } else {
+            $stmt->bindValue(':dice_roll', $diceRoll, PDO::PARAM_INT);
+        }
+
+        $stmt->bindValue(':position_after', $positionAfter, PDO::PARAM_INT);
+        $stmt->bindValue(':score_awarded', $scoreAwarded, PDO::PARAM_INT);
+        $stmt->bindValue(':id', $turnId, PDO::PARAM_INT);
+
+        $stmt->execute();
     }
 }
