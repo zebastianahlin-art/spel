@@ -17,11 +17,16 @@ require_once BASE_PATH . '/app/Core/View.php';
 
 require_once BASE_PATH . '/app/Repositories/RoomRepository.php';
 require_once BASE_PATH . '/app/Repositories/PlayerRepository.php';
+require_once BASE_PATH . '/app/Repositories/QuestionRepository.php';
+require_once BASE_PATH . '/app/Repositories/TurnRepository.php';
+
+require_once BASE_PATH . '/app/Services/GameService.php';
 
 require_once BASE_PATH . '/app/Controllers/HomeController.php';
 require_once BASE_PATH . '/app/Controllers/HostController.php';
 require_once BASE_PATH . '/app/Controllers/JoinController.php';
 require_once BASE_PATH . '/app/Controllers/PlayerController.php';
+require_once BASE_PATH . '/app/Controllers/GameController.php';
 require_once BASE_PATH . '/app/Controllers/ApiController.php';
 
 $config = [
@@ -38,12 +43,18 @@ $router->get('/', ['HomeController', 'index']);
 $router->get('/host', ['HostController', 'index']);
 $router->post('/host/create', ['HostController', 'create']);
 $router->get('/host/lobby', ['HostController', 'lobby']);
+$router->post('/host/start', ['HostController', 'start']);
 
 $router->get('/join', ['JoinController', 'index']);
 $router->post('/join', ['JoinController', 'join']);
 
 $router->get('/player/lobby', ['PlayerController', 'lobby']);
+$router->get('/player/game', ['PlayerController', 'game']);
+$router->post('/player/answer', ['PlayerController', 'answer']);
+
+$router->get('/game', ['GameController', 'show']);
 
 $router->get('/api/lobby', ['ApiController', 'lobby']);
+$router->get('/api/game-state', ['ApiController', 'gameState']);
 
 $router->dispatch($_SERVER['REQUEST_URI'] ?? '/', $_SERVER['REQUEST_METHOD'] ?? 'GET');
