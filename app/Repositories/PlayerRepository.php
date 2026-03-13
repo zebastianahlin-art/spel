@@ -134,4 +134,21 @@ final class PlayerRepository
             ':id' => $playerId,
         ]);
     }
+
+    public function updatePosition(int $playerId, int $position): void
+    {
+        $sql = '
+            UPDATE players
+            SET
+                position = :position,
+                updated_at = NOW()
+            WHERE id = :id
+        ';
+
+        $stmt = $this->database->pdo()->prepare($sql);
+        $stmt->execute([
+            ':position' => $position,
+            ':id' => $playerId,
+        ]);
+    }
 }
