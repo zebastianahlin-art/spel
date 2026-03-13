@@ -230,7 +230,8 @@ ul {
 }
 
 .player-card,
-.player-self-card {
+.player-self-card,
+.turn-player {
     display: flex;
     align-items: center;
     gap: 0.9rem;
@@ -262,9 +263,19 @@ ul {
     font-size: 2rem;
 }
 
+.player-avatar.xl {
+    width: 88px;
+    height: 88px;
+    font-size: 2.5rem;
+}
+
 .player-name {
     font-weight: 700;
     color: #f8fafc;
+}
+
+.player-name.large {
+    font-size: 1.5rem;
 }
 
 .player-meta {
@@ -293,6 +304,50 @@ ul {
 
 .muted {
     color: #94a3b8;
+}
+
+.question-box {
+    margin-top: 1rem;
+    padding: 1.25rem;
+    border-radius: 16px;
+    background: rgba(29, 78, 216, 0.12);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    color: #eff6ff;
+    font-size: 1.2rem;
+    line-height: 1.6;
+}
+
+.question-box.mobile {
+    font-size: 1.05rem;
+}
+
+.options-grid {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.option-card {
+    padding: 1rem;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #e2e8f0;
+}
+
+.radio-option {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.9rem 1rem;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+}
+
+.radio-option input {
+    margin: 0;
 }
 
 @media (max-width: 768px) {
