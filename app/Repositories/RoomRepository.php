@@ -103,4 +103,21 @@ final class RoomRepository
             ':id' => $roomId,
         ]);
     }
+
+    public function setCurrentState(int $roomId, string $state): void
+    {
+        $sql = '
+            UPDATE rooms
+            SET
+                current_state = :current_state,
+                updated_at = NOW()
+            WHERE id = :id
+        ';
+
+        $stmt = $this->database->pdo()->prepare($sql);
+        $stmt->execute([
+            ':current_state' => $state,
+            ':id' => $roomId,
+        ]);
+    }
 }
