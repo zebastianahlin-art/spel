@@ -4,6 +4,7 @@ $currentPlayerId = (int) ($player['id'] ?? 0);
 $activePlayerId = (int) ($room['current_player_id'] ?? 0);
 $isMyTurn = $currentPlayerId === $activePlayerId;
 $options = [];
+$boardMax = 30;
 
 if (!empty($latestTurn['answer_options_json'])) {
     $decoded = json_decode((string) $latestTurn['answer_options_json'], true);
@@ -19,13 +20,21 @@ if (!empty($latestTurn['answer_options_json'])) {
             <p class="eyebrow">Mobilvy</p>
             <h1><?= $isMyTurn ? 'Det är din tur' : 'Vänta på din tur'; ?></h1>
 
+            <div class="board-mini-panel">
+                <div class="board-mini-title">Din resa</div>
+                <div class="progress-line">
+                    <div class="progress-fill" style="width: <?= max(0, min(100, ((int) ($player['position'] ?? 0) / $boardMax) * 100)); ?>%;"></div>
+                </div>
+                <div class="player-meta">Position: <?= (int) ($player['position'] ?? 0); ?>/<?= $boardMax; ?> · Poäng: <?= (int) ($player['score'] ?? 0); ?></div>
+            </div>
+
             <div id="player-turn-panel">
                 <?php if ($latestTurn !== null): ?>
                     <div class="player-self-card">
                         <div class="player-avatar large"><?= htmlspecialchars((string) ($player['avatar'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></div>
                         <div>
                             <div class="player-name"><?= htmlspecialchars((string) ($player['name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></div>
-                            <div class="player-meta">Poäng: <?= (int) ($player['score'] ?? 0); ?></div>
+                            <div class="player-meta">Poäng: <?= (int) ($player['score'] ?? 0); ?> · Position: <?= (int) ($player['position'] ?? 0); ?>/<?= $boardMax; ?></div>
                         </div>
                     </div>
 
@@ -37,7 +46,7 @@ if (!empty($latestTurn['answer_options_json'])) {
                         <form method="post" action="/player/answer" class="form-stack">
                             <input type="hidden" name="code" value="<?= htmlspecialchars($roomCode, ENT_QUOTES, 'UTF-8'); ?>">
 
-                            <?php foreach ($options as $index => $option): ?>
+                            <?php foreach ($options as $option): ?>
                                 <label class="radio-option">
                                     <input type="radio" name="answer" value="<?= htmlspecialchars((string) $option, ENT_QUOTES, 'UTF-8'); ?>" required>
                                     <span><?= htmlspecialchars((string) $option, ENT_QUOTES, 'UTF-8'); ?></span>
@@ -51,6 +60,21 @@ if (!empty($latestTurn['answer_options_json'])) {
                             Aktiv spelare: <strong><?= htmlspecialchars((string) ($latestTurn['player_name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></strong><br>
                             Vänta tills det blir din tur.
                         </div>
+
+                        <?php if (($latestTurn['is_correct'] ?? null) !== null): ?>
+                            <div class="answer-reveal-box compact">
+                                <div class="reveal <?= (int) $latestTurn['is_correct'] === 1 ? 'correct' : 'wrong'; ?>">
+                                    <div class="reveal-title">
+                                        <?= (int) $latestTurn['is_correct'] === 1 ? 'Rätt svar!' : 'Fel svar'; ?>
+                                    </div>
+                                    <div class="reveal-line">Rätt svar: <?= htmlspecialchars((string) ($latestTurn['correct_answer'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></div>
+                                    <div class="reveal-line">
+                                        Tärning:
+                                        <?= $latestTurn['dice_roll'] !== null ? (int) $latestTurn['dice_roll'] : '–'; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endif; ?>
                     <?php endif; ?>
                 <?php else: ?>
                     <p class="muted">Väntar på första frågan.</p>
@@ -59,7 +83,7 @@ if (!empty($latestTurn['answer_options_json'])) {
         </div>
 
         <div class="card">
-            <h2>Poängtavla</h2>
+            <h2>Spelare</h2>
             <div id="scoreboard">
                 <div class="player-list">
                     <?php foreach (($players ?? []) as $listedPlayer): ?>
@@ -67,7 +91,7 @@ if (!empty($latestTurn['answer_options_json'])) {
                             <div class="player-avatar"><?= htmlspecialchars($listedPlayer['avatar'], ENT_QUOTES, 'UTF-8'); ?></div>
                             <div>
                                 <div class="player-name"><?= htmlspecialchars($listedPlayer['name'], ENT_QUOTES, 'UTF-8'); ?></div>
-                                <div class="player-meta">Poäng: <?= (int) $listedPlayer['score']; ?></div>
+                                <div class="player-meta">Poäng: <?= (int) $listedPlayer['score']; ?> · Position: <?= (int) $listedPlayer['position']; ?>/<?= $boardMax; ?></div>
                             </div>
                         </div>
                     <?php endforeach; ?>
