@@ -108,6 +108,9 @@ final class ApiController extends Controller
                 'current_state' => $room['current_state'],
                 'current_player_id' => $room['current_player_id'] !== null ? (int) $room['current_player_id'] : null,
             ],
+            'board' => [
+                'max_position' => 30,
+            ],
             'players' => array_map(static function (array $player): array {
                 return [
                     'id' => (int) $player['id'],
@@ -115,6 +118,7 @@ final class ApiController extends Controller
                     'age' => (int) $player['age'],
                     'avatar' => $player['avatar'],
                     'score' => (int) $player['score'],
+                    'position' => (int) $player['position'],
                     'turn_order' => (int) $player['turn_order'],
                 ];
             }, $players),
@@ -131,6 +135,9 @@ final class ApiController extends Controller
                 'correct_answer' => $latestTurn['correct_answer'],
                 'answer_options' => $questionOptions,
                 'score_awarded' => (int) $latestTurn['score_awarded'],
+                'dice_roll' => $latestTurn['dice_roll'] !== null ? (int) $latestTurn['dice_roll'] : null,
+                'position_before' => (int) $latestTurn['position_before'],
+                'position_after' => (int) $latestTurn['position_after'],
             ] : null,
         ], JSON_UNESCAPED_UNICODE);
     }
