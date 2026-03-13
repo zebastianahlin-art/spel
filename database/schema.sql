@@ -1,1 +1,98 @@
+CREATE TABLE IF NOT EXISTS rooms (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    room_code VARCHAR(10) NOT NULL UNIQUE,
+    host_session_id VARCHAR(128) NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'lobby',
+    match_length_minutes INT NOT NULL DEFAULT 20,
+    current_state VARCHAR(50) NOT NULL DEFAULT 'lobby',
+    current_player_id INT UNSIGNED NULL,
+    started_at DATETIME NULL,
+    ended_at DATETIME NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
 
+CREATE TABLE IF NOT EXISTS players (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    room_id INT UNSIGNED NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    age INT UNSIGNED NOT NULL,
+    avatar VARCHAR(100) NOT NULL,
+    position INT NOT NULL DEFAULT 0,
+    score INT NOT NULL DEFAULT 0,
+    is_connected TINYINT(1) NOT NULL DEFAULT 1,
+    turn_order INT NOT NULL DEFAULT 0,
+    is_finalist TINYINT(1) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_players_room FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS questions (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    category VARCHAR(100) NOT NULL,
+    difficulty VARCHAR(50) NOT NULL,
+    age_min INT UNSIGNED NOT NULL DEFAULT 0,
+    age_max INT UNSIGNED NOT NULL DEFAULT 120,
+    question_type VARCHAR(50) NOT NULL,
+    question_text TEXT NOT NULL,
+    correct_answer TEXT NOT NULL,
+    answer_options_json TEXT NULL,
+    nearest_value VARCHAR(100) NULL,
+    is_ai_generated TINYINT(1) NOT NULL DEFAULT 0,
+    is_approved TINYINT(1) NOT NULL DEFAULT 0,
+    language VARCHAR(10) NOT NULL DEFAULT 'sv',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS turns (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    room_id INT UNSIGNED NOT NULL,
+    player_id INT UNSIGNED NOT NULL,
+    question_id INT UNSIGNED NOT NULL,
+    turn_number INT NOT NULL,
+    state VARCHAR(50) NOT NULL DEFAULT 'pending',
+    answer_submitted TEXT NULL,
+    is_correct TINYINT(1) NULL,
+    dice_roll INT NULL,
+    position_before INT NOT NULL DEFAULT 0,
+    position_after INT NOT NULL DEFAULT 0,
+    score_awarded INT NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_turns_room FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE,
+    CONSTRAINT fk_turns_player FOREIGN KEY (player_id) REFERENCES players(id) ON DELETE CASCADE,
+    CONSTRAINT fk_turns_question FOREIGN KEY (question_id) REFERENCES questions(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS answers (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    turn_id INT UNSIGNED NOT NULL,
+    player_id INT UNSIGNED NOT NULL,
+    answer_text TEXT NOT NULL,
+    is_correct TINYINT(1) NULL,
+    submitted_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_answers_turn FOREIGN KEY (turn_id) REFERENCES turns(id) ON DELETE CASCADE,
+    CONSTRAINT fk_answers_player FOREIGN KEY (player_id) REFERENCES players(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS board_tiles (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    board_key VARCHAR(100) NOT NULL,
+    tile_index INT NOT NULL,
+    tile_type VARCHAR(50) NOT NULL DEFAULT 'normal',
+    tile_label VARCHAR(100) NULL,
+    tile_effect_json TEXT NULL,
+    x_percent DECIMAL(5,2) NOT NULL DEFAULT 0.00,
+    y_percent DECIMAL(5,2) NOT NULL DEFAULT 0.00
+);
+
+CREATE TABLE IF NOT EXISTS game_events (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    room_id INT UNSIGNED NOT NULL,
+    event_type VARCHAR(50) NOT NULL,
+    event_payload_json TEXT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_game_events_room FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE
+);
