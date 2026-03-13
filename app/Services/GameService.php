@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 final class GameService
 {
+    private const BOARD_MAX_POSITION = 30;
+
     private RoomRepository $roomRepository;
     private PlayerRepository $playerRepository;
     private QuestionRepository $questionRepository;
@@ -76,16 +78,31 @@ final class GameService
         $isCorrect = mb_strtolower($submittedAnswer) === mb_strtolower($correctAnswer);
         $scoreAwarded = $isCorrect ? 10 : 0;
 
+        $diceRoll = null;
+        $positionAfter = (int) $latestTurn['position_before'];
+
+        $this->roomRepository->setCurrentState($roomId, 'answer_reveal');
+
+        if ($isCorrect) {
+            $diceRoll = random_int(1, 6);
+            $positionAfter = min(
+                self::BOARD_MAX_POSITION,
+                (int) $latestTurn['position_before'] + $diceRoll
+            );
+
+            $this->playerRepository->addScore((int) $latestTurn['player_id'], $scoreAwarded);
+            $this->playerRepository->updatePosition((int) $latestTurn['player_id'], $positionAfter);
+        }
+
         $this->turnRepository->resolveTurn(
             (int) $latestTurn['id'],
             $submittedAnswer,
             $isCorrect,
-            $scoreAwarded
+            $scoreAwarded,
+            $diceRoll,
+            $positionAfter,
+            'answered'
         );
-
-        if ($isCorrect) {
-            $this->playerRepository->addScore((int) $latestTurn['player_id'], $scoreAwarded);
-        }
 
         $nextPlayer = $this->getNextPlayer($roomId, (int) $latestTurn['player_id']);
 
