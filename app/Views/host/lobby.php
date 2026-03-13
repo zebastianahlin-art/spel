@@ -16,6 +16,16 @@ $playerCount = is_array($players ?? null) ? count($players) : 0;
                 Låt spelarna gå till <strong>/join</strong> och ange spelkoden.
             </p>
 
+            <?php if (!empty($errors ?? [])): ?>
+                <div class="alert error">
+                    <ul>
+                        <?php foreach (($errors ?? []) as $error): ?>
+                            <li><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
+
             <div class="room-code-box" id="room-code-box">
                 <?= htmlspecialchars($roomCode, ENT_QUOTES, 'UTF-8'); ?>
             </div>
@@ -29,10 +39,10 @@ $playerCount = is_array($players ?? null) ? count($players) : 0;
                 </div>
             </div>
 
-            <div class="placeholder-box">
-                <strong>Nästa fas:</strong><br>
-                Startknapp för spel, kartlobby och flytande avatarer på TV-skärmen.
-            </div>
+            <form method="post" action="/host/start" class="form-stack">
+                <input type="hidden" name="code" value="<?= htmlspecialchars($roomCode, ENT_QUOTES, 'UTF-8'); ?>">
+                <button type="submit" class="button primary">Starta spel</button>
+            </form>
         </div>
 
         <div class="card">
@@ -50,7 +60,7 @@ $playerCount = is_array($players ?? null) ? count($players) : 0;
                                 <div class="player-avatar"><?= htmlspecialchars($player['avatar'], ENT_QUOTES, 'UTF-8'); ?></div>
                                 <div>
                                     <div class="player-name"><?= htmlspecialchars($player['name'], ENT_QUOTES, 'UTF-8'); ?></div>
-                                    <div class="player-meta">Ålder: <?= (int) $player['age']; ?> · Tur: <?= (int) $player['turn_order']; ?></div>
+                                    <div class="player-meta">Ålder: <?= (int) $player['age']; ?> · Tur: <?= (int) $player['turn_order']; ?> · Poäng: <?= (int) $player['score']; ?></div>
                                 </div>
                             </div>
                         <?php endforeach; ?>
