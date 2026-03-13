@@ -30,7 +30,7 @@ declare(strict_types=1);
 
     <footer class="site-footer">
         <div class="container">
-            <p>Fas 1 – projektskelett</p>
+            <p>Fas 2 – spelrum, anslutning och lobby</p>
         </div>
     </footer>
 
