@@ -84,6 +84,7 @@ final class PlayerRepository
         $sql = '
             SELECT
                 id,
+                room_id,
                 name,
                 age,
                 avatar,
@@ -115,5 +116,22 @@ final class PlayerRepository
         $row = $stmt->fetch();
 
         return (int) ($row['total'] ?? 0);
+    }
+
+    public function addScore(int $playerId, int $score): void
+    {
+        $sql = '
+            UPDATE players
+            SET
+                score = score + :score,
+                updated_at = NOW()
+            WHERE id = :id
+        ';
+
+        $stmt = $this->database->pdo()->prepare($sql);
+        $stmt->execute([
+            ':score' => $score,
+            ':id' => $playerId,
+        ]);
     }
 }
