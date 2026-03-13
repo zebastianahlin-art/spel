@@ -62,4 +62,45 @@ final class RoomRepository
     {
         return $this->findByCode($roomCode) !== null;
     }
+
+    public function markAsStarted(int $roomId, int $currentPlayerId): void
+    {
+        $sql = '
+            UPDATE rooms
+            SET
+                status = :status,
+                current_state = :current_state,
+                current_player_id = :current_player_id,
+                started_at = NOW(),
+                updated_at = NOW()
+            WHERE id = :id
+        ';
+
+        $stmt = $this->database->pdo()->prepare($sql);
+        $stmt->execute([
+            ':status' => 'in_progress',
+            ':current_state' => 'awaiting_answer',
+            ':current_player_id' => $currentPlayerId,
+            ':id' => $roomId,
+        ]);
+    }
+
+    public function setCurrentPlayer(int $roomId, int $currentPlayerId): void
+    {
+        $sql = '
+            UPDATE rooms
+            SET
+                current_player_id = :current_player_id,
+                current_state = :current_state,
+                updated_at = NOW()
+            WHERE id = :id
+        ';
+
+        $stmt = $this->database->pdo()->prepare($sql);
+        $stmt->execute([
+            ':current_player_id' => $currentPlayerId,
+            ':current_state' => 'awaiting_answer',
+            ':id' => $roomId,
+        ]);
+    }
 }
