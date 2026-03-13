@@ -15,4 +15,15 @@ abstract class Controller
     {
         View::render($view, $data, $layout);
     }
+
+    protected function redirect(string $path): void
+    {
+        header('Location: ' . $path);
+        exit;
+    }
+
+    protected function input(string $key, mixed $default = null): mixed
+    {
+        return $_POST[$key] ?? $_GET[$key] ?? $default;
+    }
 }
