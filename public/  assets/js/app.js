@@ -123,10 +123,12 @@ function initGameScreen() {
                 return;
             }
 
-            renderScoreboard(data.players || []);
+            renderScoreboard(data.players || [], data.board?.max_position || 30);
+            renderBoardPlayers(data.players || [], data.board?.max_position || 30);
 
             if (screenType === 'host') {
                 renderHostTurn(data.turn);
+                renderRevealBox(data.turn);
             }
 
             if (screenType === 'player') {
@@ -152,7 +154,7 @@ function initGameScreen() {
     window.setInterval(fetchGameState, 3000);
 }
 
-function renderScoreboard(players) {
+function renderScoreboard(players, maxPosition) {
     const scoreboard = document.getElementById('scoreboard');
     if (!scoreboard || !Array.isArray(players)) {
         return;
@@ -165,12 +167,27 @@ function renderScoreboard(players) {
                     <div class="player-avatar">${escapeHtml(player.avatar)}</div>
                     <div>
                         <div class="player-name">${escapeHtml(player.name)}</div>
-                        <div class="player-meta">Poäng: ${Number(player.score)}</div>
+                        <div class="player-meta">Poäng: ${Number(player.score)} · Position: ${Number(player.position)}/${Number(maxPosition)}</div>
                     </div>
                 </div>
             `).join('')}
         </div>
     `;
+}
+
+function renderBoardPlayers(players, maxPosition) {
+    const boardPlayers = document.getElementById('board-players');
+    if (!boardPlayers || !Array.isArray(players)) {
+        return;
+    }
+
+    boardPlayers.innerHTML = players.map((player) => `
+        <div class="board-player-chip">
+            <span class="chip-avatar">${escapeHtml(player.avatar)}</span>
+            <span class="chip-name">${escapeHtml(player.name)}</span>
+            <span class="chip-pos">${Number(player.position)}/${Number(maxPosition)}</span>
+        </div>
+    `).join('');
 }
 
 function renderHostTurn(turn) {
@@ -196,6 +213,24 @@ function renderHostTurn(turn) {
 
         <div class="options-grid">
             ${options.map((option) => `<div class="option-card">${escapeHtml(option)}</div>`).join('')}
+        </div>
+    `;
+}
+
+function renderRevealBox(turn) {
+    const revealBox = document.getElementById('answer-reveal-box');
+    if (!revealBox || !turn || turn.is_correct === null || typeof turn.is_correct === 'undefined') {
+        return;
+    }
+
+    revealBox.innerHTML = `
+        <div class="reveal ${Number(turn.is_correct) === 1 ? 'correct' : 'wrong'}">
+            <div class="reveal-title">${Number(turn.is_correct) === 1 ? 'Rätt svar!' : 'Fel svar'}</div>
+            <div class="reveal-line">Spelarens svar: ${escapeHtml(turn.answer_submitted || '')}</div>
+            <div class="reveal-line">Rätt svar: ${escapeHtml(turn.correct_answer || '')}</div>
+            <div class="reveal-line">Poäng: ${Number(turn.score_awarded || 0)}</div>
+            <div class="reveal-line">Tärning: ${turn.dice_roll === null ? '–' : Number(turn.dice_roll)}</div>
+            <div class="reveal-line">Flytt: ${Number(turn.position_before || 0)} → ${Number(turn.position_after || 0)}</div>
         </div>
     `;
 }
